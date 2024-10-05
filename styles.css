@@ -1,0 +1,12 @@
+.main{
+    display: grid;
+    grid-template-columns: 100px 100px 100px;
+    grid-template-rows: 50px 50px 50px;
+}
+.box{
+    text-align: center;
+    border: 1px solid ;
+    padding-top: 10px;
+    cursor: pointer;
+    font-size: 30px;
+}
