@@ -8,7 +8,9 @@ const startGameButton = document.querySelector(".start-game-button");
 
 const ticTacToe = (function () {
   let winner;
-  let playerTurn = "X";
+  let currentTurn;
+  let player1Turn = "X"; // setting the intial player turn to X
+  let player2Turn = "O"; // setting the intial player turn to O
   function gameBoard() {
     let row1 = [1, 2, 3];
     let row2 = [4, 5, 6];
@@ -55,20 +57,13 @@ const ticTacToe = (function () {
     domLogic.renderGameBoard();
   }
 
-  function player(name) {
-    let turn;
-    return {
-      name,
-      turn,
-    };
-  }
-
   return {
     gameBoard,
     gameBoardController,
-    player,
     winner,
-    playerTurn,
+    currentTurn,
+    player1Turn,
+    player2Turn,
   };
 })();
 
@@ -133,7 +128,9 @@ function checkWinner(gameBoard) {
 }
 
 const domLogic = {
-  playerTurn: ticTacToe.playerTurn,
+  player1Turn: ticTacToe.playerTurn,
+  player2Turn: ticTacToe.player2Turn,
+  currentTurn: ticTacToe.currentTurn,
 
   gameBoard: ticTacToe.gameBoard(),
 
@@ -146,30 +143,37 @@ const domLogic = {
         box.classList = "box";
         box.textContent = arrayItem;
         box.dataset.position = arrayItem;
-
+        winnerLine.textContent = `${domLogic.player1Turn} turn`;
         box.addEventListener("click", () => {
-          // setting the intial player turn to X
-          if (domLogic.playerTurn === "O") {
+          if (
+            domLogic.currentTurn === "O" &&
+            domLogic.currentTurn !== "finished"
+          ) {
             ticTacToe.gameBoardController(
               domLogic.gameBoard.gameBoardArray,
               arrayItem,
               "O"
             );
             domLogic.renderGameBoard(); // to make the changes visible on screen, we are re rendering the whole game board
-            domLogic.playerTurn = "X";
-          } else {
+            domLogic.currentTurn = "X";
+            winnerLine.textContent = `${domLogic.player1Turn} turn`;
+          } else if (domLogic.currentTurn !== "finished") {
             ticTacToe.gameBoardController(
               domLogic.gameBoard.gameBoardArray,
               arrayItem,
               "X"
             );
             domLogic.renderGameBoard(); // to make the changes visible on screen, we are re rendering the whole game board
-            domLogic.playerTurn = "O";
+            domLogic.currentTurn = "O";
+            winnerLine.textContent = `${domLogic.player2Turn} turn`;
           }
           if (checkWinner(domLogic.gameBoard)) {
-            winnerLine.textContent = ` The Winner is ${checkWinner(
-              domLogic.gameBoard
-            )}`;
+            winnerLine.textContent = ` The Winner is ${
+              checkWinner(domLogic.gameBoard) === "X"
+                ? domLogic.player1Turn
+                : domLogic.player2Turn
+            }`;
+            domLogic.currentTurn = "finished";
           }
           console.log(domLogic.gameBoard.gameBoardArray);
         });
@@ -178,13 +182,16 @@ const domLogic = {
     });
   },
 
-  startGame: function(){
-    main.innerHTML = ' '
-    domLogic.renderGameBoard()
-  }
+  startGame: function () {
+    main.innerHTML = " ";
+    domLogic.player1Turn = player1.value;
+    domLogic.player2Turn = player2.value;
+    if (domLogic.player1Turn !== "" && domLogic.player2Turn !== "") {
+      domLogic.renderGameBoard();
+    }
+  },
 };
 
-startGameButton.addEventListener('click', ()=>{
-  domLogic.startGame()
-})
-// domLogic.startGame()
+startGameButton.addEventListener("click", () => {
+  domLogic.startGame();
+});
