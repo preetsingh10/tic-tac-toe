@@ -9,51 +9,24 @@ const startGameButton = document.querySelector(".start-game-button");
 const ticTacToe = (function () {
   let winner;
   let currentTurn;
-  let player1Turn = "X"; // setting the intial player turn to X
-  let player2Turn = "O"; // setting the intial player turn to O
+  let player1Turn = "X"; // setting the initial player turn to X
+  let player2Turn = "O"; // setting the initial player turn to O
+
   function gameBoard() {
-    let row1 = [1, 2, 3];
-    let row2 = [4, 5, 6];
-    let row3 = [7, 8, 9];
+    let row1 = ["", "", ""];
+    let row2 = ["", "", ""];
+    let row3 = ["", "", ""];
     return {
       gameBoardArray: [row1, row2, row3],
     };
   }
-  function gameBoardController(gameBoard, position, choice) {
-    if (position <= 3) {
-      // to check if it is in row 1
-      const indexOfPosition = gameBoard[0].indexOf(position);
-      if (
-        gameBoard[0][indexOfPosition] === "X" ||
-        gameBoard[0][indexOfPosition] === "O"
-      ) {
-        console.log("the postion is already taken");
-      } else {
-        gameBoard[0][indexOfPosition] = choice;
-      }
-    } else if (position >= 4 && position <= 6) {
-      // to check if it is in row 2
-      const indexOfPosition = gameBoard[1].indexOf(position);
-      if (
-        gameBoard[1][indexOfPosition] === "X" ||
-        gameBoard[1][indexOfPosition] === "O"
-      ) {
-        console.log("the postion is already taken");
-      } else {
-        gameBoard[1][indexOfPosition] = choice;
-      }
-    } else {
-      const indexOfPosition = gameBoard[2].indexOf(position);
-      if (
-        gameBoard[2][indexOfPosition] === "X" ||
-        gameBoard[2][indexOfPosition] === "O"
-      ) {
-        console.log("the postion is already taken");
-      } else {
-        gameBoard[2][indexOfPosition] = choice;
-      }
-    }
 
+  function gameBoardController(gameBoardArray, row, col, choice) {
+    if (gameBoardArray[row][col] === "") { // Check if cell is empty
+      gameBoardArray[row][col] = choice;
+    } else {
+      console.log("The position is already taken");
+    }
     domLogic.renderGameBoard();
   }
 
@@ -68,13 +41,12 @@ const ticTacToe = (function () {
 })();
 
 function checkWinner(gameBoard) {
-  //  CHECK HORIZONTALLY
+  // Check horizontally
   if (
     gameBoard.gameBoardArray[0][0] === gameBoard.gameBoardArray[0][2] &&
     gameBoard.gameBoardArray[0][1] === gameBoard.gameBoardArray[0][2]
   ) {
     gameBoard.winner = gameBoard.gameBoardArray[0][2];
-
     return gameBoard.winner;
   } else if (
     gameBoard.gameBoardArray[1][0] === gameBoard.gameBoardArray[1][2] &&
@@ -90,7 +62,7 @@ function checkWinner(gameBoard) {
     return gameBoard.winner;
   }
 
-  // check vertically
+  // Check vertically
   else if (
     gameBoard.gameBoardArray[0][0] === gameBoard.gameBoardArray[2][0] &&
     gameBoard.gameBoardArray[1][0] === gameBoard.gameBoardArray[2][0]
@@ -111,7 +83,7 @@ function checkWinner(gameBoard) {
     return gameBoard.winner;
   }
 
-  // check diagonally
+  // Check diagonally
   else if (
     gameBoard.gameBoardArray[0][0] === gameBoard.gameBoardArray[1][1] &&
     gameBoard.gameBoardArray[2][2] === gameBoard.gameBoardArray[1][1]
@@ -128,62 +100,62 @@ function checkWinner(gameBoard) {
 }
 
 const domLogic = {
-  player1Turn: ticTacToe.playerTurn,
+  player1Turn: ticTacToe.player1Turn,
   player2Turn: ticTacToe.player2Turn,
   currentTurn: ticTacToe.currentTurn,
 
   gameBoard: ticTacToe.gameBoard(),
 
   renderGameBoard: function () {
-    main.innerHTML = " ";
+    main.innerHTML = "";
 
-    domLogic.gameBoard.gameBoardArray.forEach((row) => {
-      row.forEach((arrayItem) => {
+    domLogic.gameBoard.gameBoardArray.forEach((row, rowIndex) => {
+      row.forEach((arrayItem, colIndex) => {
         const box = document.createElement("div");
         box.classList = "box";
         box.textContent = arrayItem;
-        box.dataset.position = arrayItem;
-        winnerLine.textContent = `${domLogic.player1Turn} turn`;
+        box.dataset.row = rowIndex;
+        box.dataset.col = colIndex;
+
         box.addEventListener("click", () => {
-          if (
-            domLogic.currentTurn === "O" &&
-            domLogic.currentTurn !== "finished"
-          ) {
+          if (domLogic.currentTurn === "O" && domLogic.currentTurn !== "finished") {
             ticTacToe.gameBoardController(
               domLogic.gameBoard.gameBoardArray,
-              arrayItem,
+              rowIndex,
+              colIndex,
               "O"
             );
-            domLogic.renderGameBoard(); // to make the changes visible on screen, we are re rendering the whole game board
             domLogic.currentTurn = "X";
             winnerLine.textContent = `${domLogic.player1Turn} turn`;
           } else if (domLogic.currentTurn !== "finished") {
             ticTacToe.gameBoardController(
               domLogic.gameBoard.gameBoardArray,
-              arrayItem,
+              rowIndex,
+              colIndex,
               "X"
             );
-            domLogic.renderGameBoard(); // to make the changes visible on screen, we are re rendering the whole game board
             domLogic.currentTurn = "O";
             winnerLine.textContent = `${domLogic.player2Turn} turn`;
           }
+
           if (checkWinner(domLogic.gameBoard)) {
-            winnerLine.textContent = ` The Winner is ${
+            winnerLine.textContent = `The Winner is ${
               checkWinner(domLogic.gameBoard) === "X"
                 ? domLogic.player1Turn
                 : domLogic.player2Turn
             }`;
             domLogic.currentTurn = "finished";
           }
-          console.log(domLogic.gameBoard.gameBoardArray);
+          domLogic.renderGameBoard(); // Re-render the board to show updates
         });
+
         main.appendChild(box);
       });
     });
   },
 
   startGame: function () {
-    main.innerHTML = " ";
+    main.innerHTML = "";
     domLogic.player1Turn = player1.value;
     domLogic.player2Turn = player2.value;
     if (domLogic.player1Turn !== "" && domLogic.player2Turn !== "") {
